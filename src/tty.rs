@@ -52,7 +52,6 @@ impl Read for Handle {
 }
 
 
-#[cfg(target_os = "linux")]
 pub fn handle_err(handle: &mut Handle, err: &Error) -> bool {
 	if let Handle::Pty {ref mut child, ..} = *handle {
 		if child.try_wait().unwrap().is_some() {
@@ -62,11 +61,20 @@ pub fn handle_err(handle: &mut Handle, err: &Error) -> bool {
 	panic!("Error: {:?}", err)
 }
 
-
+#[cfg(target_os = "linux")]
 pub fn get_handle(mut command: Command, tty: bool) -> Handle {
-    if cfg!(target_os = "linux") && tty {
-        return get_tty(command);
+    if tty {
+        return get_tty(command)
     }
+    return get_handle_base(command);
+}
+
+#[cfg(not(target_os = "linux"))]
+pub fn get_handle(mut command: Command, tty: bool) -> Handle {
+    get_handle_base(command)
+}
+
+fn get_handle_base(mut command: Command) -> Handle {
 	let child = command.stderr(Stdio::piped())
 		.spawn()
 		.unwrap();
