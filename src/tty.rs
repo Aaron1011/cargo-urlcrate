@@ -4,7 +4,7 @@ use std::io::{Read, Error};
 use std::fs::File;
 
 #[cfg(target_os = "linux")]
-pub fn get_handle(mut command: Command) -> Handle {
+pub fn get_tty(mut command: Command) -> Handle {
 	use libc::{self, winsize, c_int, TIOCGWINSZ};
 	use std::os::unix::io::FromRawFd;
 	use std::fs::File;
@@ -39,14 +39,14 @@ pub fn get_handle(mut command: Command) -> Handle {
 
 pub enum Handle {
 	Pty {child: Child, fd: usize, file: File },
-	Stderr(Child, ChildStderr)
+	Stderr(ChildStderr)
 }
 
 impl Read for Handle {
 	fn read(&mut self, buf: &mut [u8]) -> Result<usize, Error> {
 		match *self {
 			Handle::Pty{ref mut file, ..} => file.read(buf),
-			Handle::Stderr(.., ref mut stderr) => stderr.read(buf) 
+			Handle::Stderr(ref mut stderr) => stderr.read(buf) 
 		}
 	}
 }
@@ -63,11 +63,13 @@ pub fn handle_err(handle: &mut Handle, err: Error) -> bool {
 }
 
 
-#[cfg(not(target_os = "linux"))]
-pub fn get_handle(mut command: Command) -> Handle {
+pub fn get_handle(mut command: Command, tty: bool) -> Handle {
+    if cfg!(target_os = "linux") && tty {
+        return get_tty(command);
+    }
 	let child = command.stderr(Stdio::piped())
 		.spawn()
 		.unwrap();
 
-	Handle::Stderr(child.stderr.unwrap())
+	return Handle::Stderr(child.stderr.unwrap())
 }
