@@ -1,6 +1,12 @@
+#![feature(plugin)]
+#![plugin(docopt_macros)]
+
 extern crate regex;
 extern crate libc;
-extern crate clap;
+
+#[macro_use]
+extern crate serde_derive;
+extern crate docopt;
 
 mod tty;
 
@@ -8,47 +14,66 @@ use std::io::BufReader;
 use regex::Regex;
 use std::process::{Command, Stdio};
 use std::io::BufRead;
-use clap::{App, AppSettings, Arg};
+use docopt::Docopt;
 
 const CARGO: &'static str = "cargo";
 const CRATE_LEN: usize = 26; // 99% of crates have names <= 26 chars at time of writing
 const VERSION_LEN: usize = 6; // Typical form of 'vX.Y.Z'
 
+const USAGE: &'static str =  "
+Adds crate URLS to Cargo output
+
+Usage:
+    cargo-urlcrate [options]
+    cargo-urlcrate [options] [--] <args>...
+
+Options:
+    -h, --help          Display this message
+    -V, --version       Print version info and exit
+    --tty=MODE          Allowed modes: auto/never. Determines whether 'cargo' is attached to a tty. Ignored on platforms other than linux.
+
+When Cargo's color mode is set to 'auto' ('--color auto'), it determines if its stderr is attached to a tty or a pipe.
+cargo-urlcrate supports connecting a psuedo-terminal (pty) to cargo, which will cause Cargo to detect a terminal.
+
+This option only has an effect on Linux - other platforms can pass '--color always' to Cargo to force it to output colors anyway.
+";
+
+#[derive(Debug, Deserialize)]
+struct Args {
+    flag_help: bool,
+    flag_version: bool,
+    flag_tty: Option<Mode>,
+    arg_args: Vec<String>
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "lowercase")]
+enum Mode {
+    Auto,
+    Never
+}
+
 fn main() {
-	let matches = App::new("cargo-urlcrate")
-        .setting(AppSettings::TrailingVarArg)
-		.version("0.1")
-		.about("Adds crate URLs to Cargo output")
-		.author("Aaron1011")
-		.arg(Arg::with_name("tty")
-             .long("tty")
-             .takes_value(true)
-             .possible_values(&["never", "auto"])
-             .default_value("auto")
-             .help("On Linux, don't connect cargo to a tty. This will cause cargo to not emit colors with '--color auto' (the default). This option has no effect on non-Linux platforms")
-        )
-        .arg(Arg::with_name("cargo")
-             .last(true)
-             .multiple(true)
-        )
-		.get_matches();
 
-    let raw = matches.value_of("cargo").unwrap_or("").to_owned();
-    println!("Raw: {}", raw);
+    let args: Args = Docopt::new(USAGE).and_then(|d| d.deserialize()).unwrap_or_else(|e| e.exit());
 
-    run(raw, match matches.value_of("tty").unwrap() {
-        "never" => false,
-        "auto" => true,
-        _ => unreachable!()
+    if args.flag_version {
+        println!("cargo-urlcrate v0.1.0");
+        return
+    }
+
+    run(args.arg_args, match args.flag_tty.unwrap_or(Mode::Auto) {
+        Mode::Never => false,
+        Mode::Auto => true,
     });
 }
 
-fn run(raw: String, tty: bool) {
+fn run(args: Vec<String>, tty: bool) {
     // https://www.npmjs.com/package/ansi-regex
     let regex = Regex::new("[\u{001b}\u{009b}][\\[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-PRZcf-nqry=><]").unwrap();
 
     let mut command = Command::new(CARGO);
-    command.args(raw.split(" "))
+    command.args(args)
         .stdout(Stdio::inherit());
 
     let mut reader: BufReader<tty::Handle> = BufReader::with_capacity(10, tty::get_handle(command, tty));
@@ -56,7 +81,12 @@ fn run(raw: String, tty: bool) {
     loop {
         let mut line = String::new();
         let line = match reader.read_line(&mut line) {
-            Ok(_) => line.trim_right_matches(newline),
+            Ok(num) => {
+                if num == 0 {
+                    break
+                }
+                line.trim_right_matches(newline)
+            },
             Err(e) => {
                 if tty::handle_err(reader.get_mut(), e) { break } else { continue };
             }
