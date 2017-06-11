@@ -1,6 +1,6 @@
 [package]
 name = "cargo-urlcrate"
-version = "0.1.0"
+version = "1.0.0"
 authors = ["Aaron Hill <aa1ronham@gmail.com>"]
 
 description = "A Cargo wrapper which adds crate URLs to 'cargo (build/test/run)' output"

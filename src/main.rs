@@ -64,7 +64,7 @@ fn main() {
         .and_then(|d| d.deserialize()).unwrap_or_else(|e| e.exit());
 
     if args.flag_version {
-        println!("cargo-urlcrate v0.1.0");
+        println!("cargo-urlcrate v1.0.0");
         return
     }
 
