@@ -30,3 +30,4 @@ $ cargo urlcrate build
 
 ### Sample Output
 
+[![](https://i.imgur.com/TOGF9IK.jpg)]()
