@@ -1,7 +1,6 @@
 sudo: false
 language: rust
 rust:
-  - stable
   - beta
   - nightly
 script: cargo test --verbose --jobs 4
