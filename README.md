@@ -1,6 +1,6 @@
 # cargo-urlcrate
 
-[![Crate Version](https://img.shields.io/crates/v/cargo-urlcrate.svg)](https://crates.io/crate/carg-urlcrate)
+[![Crate Version](https://img.shields.io/crates/v/cargo-urlcrate.svg)](https://crates.io/crate/cargo-urlcrate)
 [![Travis status](https://travis-ci.org/Aaron1011/cargo-urlcrate.svg?branch=master)](https://travis-ci.org/Aaron1011/cargo-urlcrate)
 [![AppVeyor status](https://ci.appveyor.com/api/projects/status/t0ooyuawtpciodl9?svg=true)](https://ci.appveyor.com/project/Aaron1011/cargo-urlcrate)
 [![license-image](https://img.shields.io/badge/license-MIT-blue.svg)]()
