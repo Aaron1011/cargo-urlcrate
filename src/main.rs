@@ -1,6 +1,8 @@
 #![feature(plugin)]
 #![plugin(docopt_macros)]
 
+#![cfg_attr(feature="clippy", plugin(clippy))]
+
 extern crate regex;
 extern crate libc;
 
@@ -88,13 +90,13 @@ fn run(args: Vec<String>, tty: bool) {
                 line.trim_right_matches(newline)
             },
             Err(e) => {
-                if tty::handle_err(reader.get_mut(), e) { break } else { continue };
+                if tty::handle_err(reader.get_mut(), &e) { break } else { continue };
             }
         };
-        let tmp = regex.replace_all(&line, "");
+        let tmp = regex.replace_all(line, "");
 
         let clean = tmp.trim_left();
-        let split: Vec<_> = clean.split(" ").collect();
+        let split: Vec<_> = clean.split(' ').collect();
 
         match split[0].as_ref() {
             "Compiling" | "Downloading" => {
