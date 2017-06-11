@@ -54,8 +54,14 @@ enum Mode {
 }
 
 fn main() {
+    // The program is invoked like this: 'cargo urlcrate [args]'
+    // We need to skip over the second arg, but include the first arg and any args after the second
+    // arg
 
-    let args: Args = Docopt::new(USAGE).and_then(|d| d.deserialize()).unwrap_or_else(|e| e.exit());
+    let parsed = std::env::args().take(1).chain(std::env::args().skip(2)).collect::<Vec<String>>();
+    let args: Args = Docopt::new(USAGE)
+        .map(|d| d.argv(parsed))
+        .and_then(|d| d.deserialize()).unwrap_or_else(|e| e.exit());
 
     if args.flag_version {
         println!("cargo-urlcrate v0.1.0");
@@ -97,9 +103,9 @@ fn run(args: Vec<String>, tty: bool) {
         match split[0].as_ref() {
             "Compiling" | "Downloading" => {
                 let padding = (CRATE_LEN + VERSION_LEN).saturating_sub(split[1].len() + 1 + split[2].len());
-                println!("{}{}https://crates.io/crates/{}", line, " ".repeat(padding), split[1]);
+                eprintln!("{}{}https://crates.io/crates/{}", line, " ".repeat(padding), split[1]);
             }
-            _ => println!("{}", line)
+            _ => eprintln!("{}", line)
         }
     }
 }

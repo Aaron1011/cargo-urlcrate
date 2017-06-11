@@ -3,6 +3,10 @@ name = "cargo-urlcrate"
 version = "0.1.0"
 authors = ["Aaron Hill <aa1ronham@gmail.com>"]
 
+description = "A Cargo wrapper which adds crate URLs to 'cargo (build/test/run)' output"
+repository = "https://github.com/Aaron1011/cargo-urlcrate"
+readme = "README.md"
+
 [dependencies]
 regex = "0.2"
 libc = "0.2"
