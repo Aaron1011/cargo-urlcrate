@@ -62,11 +62,11 @@ pub fn handle_err(handle: &mut Handle, err: &Error) -> bool {
 }
 
 #[cfg(target_os = "linux")]
-pub fn get_handle(mut command: Command, tty: bool) -> Handle {
+pub fn get_handle(command: Command, tty: bool) -> Handle {
     if tty {
         return get_tty(command)
     }
-    return get_handle_base(command);
+    get_handle_base(command)
 }
 
 #[cfg(not(target_os = "linux"))]
