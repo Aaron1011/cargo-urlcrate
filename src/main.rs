@@ -93,10 +93,8 @@ fn run(args: Vec<String>, tty: bool) {
                 if tty::handle_err(reader.get_mut(), &e) { break } else { continue };
             }
         };
-        let tmp = regex.replace_all(line, "");
-
-        let clean = tmp.trim_left();
-        let split: Vec<_> = clean.split(' ').collect();
+        let clean = regex.replace_all(line, "");
+        let split: Vec<_> = clean.trim_left().split(' ').collect();
 
         match split[0].as_ref() {
             "Compiling" | "Downloading" => {
