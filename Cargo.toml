@@ -1,6 +1,6 @@
 [package]
 name = "cargo-urlcrate"
-version = "1.0.0"
+version = "1.0.1"
 authors = ["Aaron Hill <aa1ronham@gmail.com>"]
 
 description = "A Cargo wrapper which adds crate URLs to 'cargo (build/test/run)' output"
@@ -20,7 +20,7 @@ libc = "0.2"
 docopt = "0.8"
 serde = "1.0"
 serde_derive = "1.0" 
-clippy = {version = "*", optional = true}
+clippy = {version = "0.0", optional = true}
 
 [features]
 default = []
