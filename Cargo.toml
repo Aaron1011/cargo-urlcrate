@@ -6,6 +6,13 @@ authors = ["Aaron Hill <aa1ronham@gmail.com>"]
 description = "A Cargo wrapper which adds crate URLs to 'cargo (build/test/run)' output"
 repository = "https://github.com/Aaron1011/cargo-urlcrate"
 readme = "README.md"
+keywords = ["cargo-subcommand", "url"]
+categories = ["development-tools", "development-tools::cargo-plugins"]
+license = "MIT"
+
+[badges]
+travis-ci = { repository = "Aaron1011/cargo-urlcrate", branch = "master" }
+appveyor = { repository = "Aaron1011/cargo-urlcrate", branch = "master", service = "github" }
 
 [dependencies]
 regex = "0.2"
